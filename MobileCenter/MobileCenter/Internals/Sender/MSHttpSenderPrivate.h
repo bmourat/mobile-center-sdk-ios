@@ -4,6 +4,8 @@
 
 @interface MSHttpSender ()
 
+@property(atomic, strong) dispatch_queue_t queue;
+
 @property(nonatomic, strong) NSURLSession *session;
 
 /**

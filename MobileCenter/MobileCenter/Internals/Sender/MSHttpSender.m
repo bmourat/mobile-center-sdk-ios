@@ -49,6 +49,10 @@ static NSTimeInterval kRequestTimeout = 60.0;
                                  object:nil];
     [self.reachability startNotifier];
 
+    // FIXME: Reachability is not thread-safe, should be deallocated in a thead that created reachability instance.
+    // We need a better way to prevent the issue.
+    self.queue = dispatch_get_current_queue();
+
     // Apply current network state.
     [self networkStateChanged];
   }
@@ -314,4 +318,10 @@ static NSTimeInterval kRequestTimeout = 60.0;
   }
 }
 
+- (void)dealloc {
+  dispatch_sync(self.queue, ^{
+    [self.reachability stopNotifier];
+    [MS_NOTIFICATION_CENTER removeObserver:self name:kMSReachabilityChangedNotification object:nil];
+  });
+}
 @end
